@@ -1,8 +1,14 @@
 # opengl
-experimenting with opengl
+Goal: explore and experiment with opengl
 
-sudo apt-get install libglfw3-dev
+Pre-req: 
+    
+    sudo apt-get install libglfw3-dev
 
-g++ Application.cpp -lglfw -lGL -o Application
+Build and Compile cmd: 
 
-./Application
+    g++ Application.cpp -lglfw -lGLEW -lGL -o Application
+
+Run cmd:
+    
+    ./Application
