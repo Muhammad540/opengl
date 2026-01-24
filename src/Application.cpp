@@ -1,16 +1,3 @@
-/* Some notes:
-- glfw: window + context + input helper 
-- opengl: specification implemented by GPU drivers allows cross platform development
-- context ? i think of it like a state machine that keeps track of all the necessary state to allow me to draw stuff
-- Basic steps:
-    1. init 
-    2. create window
-    3. make context current (this threads holds the context) 
-    4. clear, begin ---- end
-    5. swap buffers (front <-> back)
-    6. poll events
-    7. terminate
-*/
 #include <iostream>
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -43,17 +30,27 @@ int main(void)
 
     std::cout << "Status: Using GLFW version: " << glewGetString(GLEW_VERSION) << std::endl;
 
+    float positions[6] = {
+        -0.5f,  -0.5f,
+         0.0f,   0.5f,
+         0.5f,  -0.5f
+    };
+
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, 6*sizeof(float), positions, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBegin(GL_TRIANGLES);
-        glVertex2d(-0.5f,-0.5f);
-        glVertex2d( 0.0f, 0.5f);
-        glVertex2d( 0.5f,-0.5f);
-        glEnd();
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -63,5 +60,6 @@ int main(void)
     }
 
     glfwTerminate();
+    std::cout << "========================= Application Closed =========================" << std::endl; 
     return 0;
 }
