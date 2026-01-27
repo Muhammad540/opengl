@@ -35,3 +35,9 @@ Notes:
 - you need to understand how to divide the work load between vertex and pixel shader. Pixel/fragment shader are more expensive since they work pixel by pixel and do more work 
 - vertex shader -> position on the screen; fragment/pixel shader -> pixel color on the screen 
 - some game engines generate shaders on the fly !!! 
+- We can create shader by passing the source code of shader functions to opengl that then can compile/build and provide us a unique identity for that shader that we initially passed it. 
+- there is a compatibility check needed between vertex and fragment shaders ? 
+- there is opengl shader compilation language 
+- shader objects are attached to the program object, so they could be compiled and linked successfully. 
+- vertex shader runs on -> programmable vertex processor. fragment shader runs on -> programmable fragment processor.
+- opengl reads the glBufferData according to the vertexattribpointer's explanation about how to iterate over the vertices. 
