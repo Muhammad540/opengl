@@ -7,8 +7,12 @@ Pre-req:
 
 Build and Compile cmd: 
 
-    g++ Application.cpp -lglfw -lGLEW -lGL -o Application
+    g++ main.cpp -lglfw -lGLEW -lGL -o main
+
+Debug Build:
+
+    g++ -ggdb3 -O0 -Wall -Wextra main.cpp -lglfw -lGLEW -lGL -o main
 
 Run cmd:
     
-    ./Application
+    ./main

@@ -1,4 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+#include <string>
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -6,6 +10,41 @@
 // global vars
 float x_off = 0.0f;
 float y_off = 0.0f;
+
+struct ShaderProgramSource{
+    std::string VertexSource;
+    std::string FragmentSource;
+};
+
+static ShaderProgramSource ParseShaderCode(const std::string& filepath){
+    std::ifstream stream(filepath);
+    if (!stream.is_open()){
+        std::cerr << "Failed to open shader file" << std::endl;
+        std::cerr << "cwd: " << std::filesystem::current_path() << std::endl;
+        std::exit(1);
+    }
+    enum class ShaderType{
+        NONE     = -1,
+        VERTEX   =  0,
+        FRAGMENT =  1
+    };
+    std::string line;
+    std::stringstream ss[2];
+    ShaderType type = ShaderType::NONE;
+    while (std::getline(stream, line)){
+        if (line.find("#Shader") != std::string::npos){
+            if (line.find("Vertex") != std::string::npos){
+                type = ShaderType::VERTEX;
+            } else if (line.find("Fragment") != std::string::npos){
+                type = ShaderType::FRAGMENT;
+            }
+        } else {
+            ss[(int)type] << line << '\n';
+        }
+    }
+
+    return {ss[0].str(), ss[1].str()};
+}
 
 static unsigned int CompileShader(unsigned int type,const std::string& source){
     unsigned int id = glCreateShader(type);
@@ -79,23 +118,15 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
 
-    const std::string vertexShader = R"glsl(
-        #version 330 core
-        layout(location = 0) in vec4 position;
-        void main(){
-            gl_Position = position;
-        }
-    )glsl";
-    
-    const std::string fragmentShader = R"glsl(
-        #version 330 core
-        layout(location = 0) out vec4 color;
-        void main(){
-            color = vec4(1.0, 0.0, 1.0, 1.0);;
-        }
-    )glsl";
+    // Index buffer
+    // unsigned int IndexBufferObject;
+    // glGenBuffers(1, &IndexBufferObject);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferObject);
 
-    unsigned int shader = CreateShader(vertexShader, fragmentShader);
+    ShaderProgramSource source = ParseShaderCode("../res/shaders/Basic.shader");
+    std::cout << source.VertexSource << std::endl;
+    std::cout << source.FragmentSource << std::endl;
+    unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
     /* Loop until the user closes the window */
@@ -110,10 +141,10 @@ int main(void)
         
         if (moved){
             float positions[8] = {
-                -0.1f + x_off,  -0.1f + y_off,
-                -0.1f + x_off,   0.1f + y_off,
-                 0.1f + x_off,   0.1f + y_off,
-                 0.1f + x_off,  -0.1f + y_off
+                -0.1f + x_off,  -0.1f + y_off, // 0
+                -0.1f + x_off,   0.1f + y_off, // 1
+                 0.1f + x_off,   0.1f + y_off, // 2
+                 0.1f + x_off,  -0.1f + y_off  // 3
             };
             // store the data in the GPU memory 
             glBufferData(GL_ARRAY_BUFFER, 8*sizeof(float), positions, GL_DYNAMIC_DRAW);
@@ -131,6 +162,7 @@ int main(void)
         glfwPollEvents();
     }
 
+    glDeleteProgram(shader);
     glfwTerminate();
     std::cout << "========================= Application Closed =========================" << std::endl; 
     return 0;
